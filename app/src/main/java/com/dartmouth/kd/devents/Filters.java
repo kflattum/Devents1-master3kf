@@ -1,6 +1,8 @@
 package com.dartmouth.kd.devents;
 
 /**
+ * Creates a class of filters that can be saved and manipulated by user
+ * to view only certain events
  * Created by kathrynflattum on 3/3/18.
  */
 

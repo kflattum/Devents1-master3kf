@@ -167,22 +167,21 @@ public class Load_Urlevents extends AsyncTask<Void, Void, ArrayList<String>> {
             CampusEvent campus_event = new CampusEvent();
             campus_event.setURL(finalList.get(0));
             campus_event.setTitle(finalList.get(1));
-            campus_event.setStart(finalList.get(2));
+
+            campus_event.setstrStart(finalList.get(2));
+            campus_event.setstrEnd(finalList.get(3));
+            campus_event.setstrDate(finalList.get(4));
+
+            /*campus_event.setStart(finalList.get(2));
             campus_event.setEnd(finalList.get(3));
+            campus_event.setDate(finalList.get(4));*/
 
-
-
-            campus_event.setDateTime(finalList.get(4));
             campus_event.setDescription(finalList.get(5));
             campus_event.setLocation(finalList.get(6));
             double lati = 43.70566;
             campus_event.setLatitude(lati);
             double longi = -72.288745;
             campus_event.setLatitude(longi);
-
-//                campus_Eventdata.add(campus_event);
-
-
 
             long id = campusdb.insertEntry(campus_event);
             Log.d("inserttinDB1", "inserttinDB1");

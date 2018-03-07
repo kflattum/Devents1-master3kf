@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity  {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference2;
     private String userID;
     private ArrayAdapter<String> adapter;
     public static ArrayList<CampusEvent> eventlist;
@@ -55,19 +56,19 @@ public class MainActivity extends AppCompatActivity  {
         FirebaseApp.initializeApp(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("masterSheet");
-        Load_Urlevents  jsoupAsyncTask = new Load_Urlevents(this);
-        jsoupAsyncTask.execute();
-        Intent intent = new Intent(this, FunctionActivity.class);
-        startActivity(intent);
+            databaseReference = FirebaseDatabase.getInstance().getReference("masterSheet");
+            Load_Urlevents jsoupAsyncTask = new Load_Urlevents(this);
+            jsoupAsyncTask.execute();
+            Intent intent = new Intent(this, FunctionActivity.class);
+            startActivity(intent);
+            //if user isn't logged in, go to log in window
 
     }
 
     @Override
     protected void onStart() {
-        super.onStart();
+            super.onStart();
 
-        //
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -78,9 +79,12 @@ public class MainActivity extends AppCompatActivity  {
                 CampusEvent event = new CampusEvent();
                 event.setTitle(singleRun.get("title").toString());
                 event.setLocation(singleRun.get("location").toString());
-                event.setDate(0, 0, 0);
-                event.setEnd(singleRun.get("mEnd").toString());
-                event.setStart(singleRun.get("mStart").toString());
+                event.setstrDate(singleRun.get("dateInMillis").toString());
+                event.setstrEnd(singleRun.get("endInMillis").toString());
+                event.setstrStart(singleRun.get("startInMillis").toString());
+                /*event.setDate(singleRun.get("dateInMillis").toString());
+                event.setEnd(singleRun.get("endInMillis").toString());
+                event.setStart(singleRun.get("startInMillis").toString());*/
                 //event.setmDate(singleRun.get("Date").toString());
                 //event.setEnd(singleRun.get("End").toString());
                 //event.setStart(singleRun.get("Start").toString());
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity  {
                 event.setFood(2);
                 mEventDbHelper = new CampusEventDbHelper(mcontext);
 
-                new InsertIntoDbTask().execute(event);
+                new mInsertIntoDbTask().execute(event);
                 //eventlist.add(event);
             }
             }
@@ -107,6 +111,15 @@ public class MainActivity extends AppCompatActivity  {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        CampusEventDbHelper dbh = new CampusEventDbHelper(this);
+        dbh.close();
+        FilterDbHelper dbh3 = new FilterDbHelper(this);
+        dbh3.close();
+        super.onDestroy();
     }
 
 
@@ -189,14 +202,13 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-    public class InsertIntoDbTask extends AsyncTask<CampusEvent, Void, String> {
+    public class mInsertIntoDbTask extends AsyncTask<CampusEvent, Void, String> {
         @Override
         protected String doInBackground(CampusEvent... campusEvents) {
             long id = mEventDbHelper.insertEntry(campusEvents[0]);
 
             return ""+id;
             // Pop up a toast
-
         }
 
         @Override

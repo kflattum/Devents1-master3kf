@@ -11,6 +11,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+/*
+*Based on code provided for MyRuns log in by XD
+*
+ */
 public class LogInActivity extends AppCompatActivity implements View.OnClickListener{
     private EditText emailEditText;
     private EditText passwordEditText;

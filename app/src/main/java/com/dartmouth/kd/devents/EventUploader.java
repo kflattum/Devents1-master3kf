@@ -14,6 +14,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 /**
+ * Syncs events created manually with firebase
+ *
  * Created by kathrynflattum on 2/28/18.
  */
 
@@ -36,7 +38,6 @@ public class EventUploader implements ValueEventListener {
         //mDatabase = FirebaseDatabase.getInstance().getReference();
         rootRef = FirebaseDatabase.getInstance().getReference("masterSheet");
         Log.d(Globals.TAGG, "Going to add everything back into firebase");
-
     }
 
 

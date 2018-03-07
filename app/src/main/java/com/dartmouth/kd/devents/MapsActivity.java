@@ -5,6 +5,10 @@ package com.dartmouth.kd.devents;
 * Implementing Google "Places" with reference from
 * https://developers.google.com/places/android-api/start
 http://android-er.blogspot.com/2013/02/convert-between-latlng-and-location.html
+
+User can see locations on map and click on banners with event names
+to see full campus event information
+Written by KF
  */
 
 import android.content.Context;
@@ -142,14 +146,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CampusEvent event = mDbHelper.fetchEventByIndex(id);
         // Write row id into extras.
         extras.putLong(Globals.KEY_ROWID, event.getmId());
-        // Passing information for display in the DisaplayEntryActivity.
+        // Passing information for display in the DisplayEventActivity.
+
         extras.putString(Globals.KEY_TITLE,event.getTitle());
         extras.putString(Globals.KEY_DATE,
-                Utils.parseDate(event.getDateTimeInMillis(), mContext));
+                Utils.parseDate(event.getDateInMillis(), mContext));
         extras.putString(Globals.KEY_START,
-                Utils.parseStart(event.getDateTimeInMillis(), mContext));
+                Utils.parseStart(event.getStartInMillis(), mContext));
         extras.putString(Globals.KEY_END,
-                Utils.parseEnd(event.getDateTimeInMillis(), mContext));
+                Utils.parseEnd(event.getEndInMillis(), mContext));
         extras.putString(Globals.KEY_LOCATION,event.getLocation());
         extras.putString(Globals.KEY_DESCRIPTION,event.getDescription());
         extras.putString(Globals.KEY_URL,event.getURL());

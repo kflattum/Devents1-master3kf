@@ -11,6 +11,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 /**
+ * Helper class to save prefernce filters
  * Created by kathrynflattum on 3/3/18.
  */
 

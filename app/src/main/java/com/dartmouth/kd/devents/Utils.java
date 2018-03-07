@@ -3,6 +3,7 @@ package com.dartmouth.kd.devents;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
@@ -35,29 +36,40 @@ public class Utils {
 	}
 
 	public static String parseStart(long timeInMs, Context context) {
-		GregorianCalendar calendar = new GregorianCalendar();
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		String formatted = sdf.format(timeInMs);
+		/*GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTimeInMillis(timeInMs);
 		SimpleDateFormat timeFormat;
 		timeFormat = new SimpleDateFormat(START_FORMAT, Locale.getDefault());
 
-		return timeFormat.format(calendar.getTime());
+		return timeFormat.format(calendar.getTime());*/
+		return formatted;
 	}
 
 	public static String parseEnd(long timeInMs, Context context) {
-		GregorianCalendar calendar = new GregorianCalendar();
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		String formatted = sdf.format(timeInMs);
+		//Log.i(Globals.TAGG, "End string is: " + formatted);
+		/*GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTimeInMillis(timeInMs);
 		SimpleDateFormat timeFormat;
 		timeFormat = new SimpleDateFormat(END_FORMAT, Locale.getDefault());
 
-		return timeFormat.format(calendar.getTime());
+		return timeFormat.format(calendar.getTime());*/
+		return formatted;
 	}
 
 	public static String parseDate(long timeInMs, Context context) {
-		GregorianCalendar calendar = new GregorianCalendar();
+		Log.d(Globals.TAGG, "Date in millis is: " + timeInMs);
+		SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy");
+		String formatted = sdf.format(timeInMs);
+		return formatted;
+		/*GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTimeInMillis(timeInMs);
 		SimpleDateFormat dateFormat;
 		dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
 
-		return dateFormat.format(calendar.getTime());
+		return dateFormat.format(calendar.getTime());*/
 	}
 }

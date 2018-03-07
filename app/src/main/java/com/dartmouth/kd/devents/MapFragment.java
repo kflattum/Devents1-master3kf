@@ -9,7 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-
+/*
+*Created this dummy fragment in order to allow map to launch as a fragment
+* Written by KF
+ */
 public class MapFragment extends Fragment {
 
     private Intent myIntent;

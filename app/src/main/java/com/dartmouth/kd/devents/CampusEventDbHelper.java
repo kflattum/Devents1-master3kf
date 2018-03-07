@@ -8,17 +8,28 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import java.util.ArrayList;
 
 /**
+ *
+ * CLASS INCLUDES FILTERING ALGORITHM
+ *
  * Created by kathrynflattum on 2/25/18.
  */
 
 public class CampusEventDbHelper extends SQLiteOpenHelper {
     // Database name string
     public static final String DATABASE_NAME = "CampusEventsDB";
-    // Table name string. (Only one table)
+    // Two tables- one to store all events and one to store MyDEvents
     private static final String TABLE_EVENT_ENTRIES = "EVENTS";
+    private static final String TABLE_DEVENTS = "DEVENTS";
     private SQLiteDatabase dbObj;
     // Version code
     private static final int DATABASE_VERSION = 1;
@@ -52,11 +63,50 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
             + KEY_TITLE
             + " TEXT, "
             + KEY_DATE
-            + " TEXT, "
+            + " DATETIME, "
             + KEY_START
-            + " TEXT, "
+            + " DATETIME, "
             + KEY_END
+            + " DATETIME, "
+            + KEY_LOCATION
             + " TEXT, "
+            + KEY_DESCRIPTION
+            + " TEXT, "
+            + KEY_URL
+            + " TEXT, "
+            + KEY_LATITUDE
+            + " DOUBLE, "
+            + KEY_LONGITUDE
+            + " DOUBLE, "
+            + KEY_FOOD
+            + " INT, "
+            + KEY_EVENT_TYPE
+            + " INT, "
+            + KEY_PROGRAM_TYPE
+            + " INT, "
+            + KEY_YEAR
+            + " INT, "
+            + KEY_MAJOR
+            + " INT, "
+            + KEY_GREEK_SOCIETY
+            + " INT, "
+            + KEY_GENDER
+            + " INT "
+            + ");";
+
+    private static final String CREATE_TABLE_DEVENTS = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_DEVENTS
+            + "("
+            + KEY_ROWID
+            + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + KEY_TITLE
+            + " TEXT, "
+            + KEY_DATE
+            + " DATETIME, "
+            + KEY_START
+            + " DATETIME, "
+            + KEY_END
+            + " DATETIME, "
             + KEY_LOCATION
             + " TEXT, "
             + KEY_DESCRIPTION
@@ -95,6 +145,7 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_ENTRIES);
+        db.execSQL(CREATE_TABLE_DEVENTS);
     }
 
     @Override
@@ -105,6 +156,7 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
     public void deleteAllEvents() {
         SQLiteDatabase dbObj = getWritableDatabase();
         dbObj.delete(CampusEventDbHelper.TABLE_EVENT_ENTRIES, null, null);
+        dbObj.delete(CampusEventDbHelper.TABLE_DEVENTS, null, null);
     }
 
     // Insert a item given each column value
@@ -113,11 +165,21 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
         ContentValues value = new ContentValues();
 
         value.put(KEY_TITLE, event.getTitle());
-        value.put(KEY_DATE, event.getDateTimeInMillis());
 
-        //THIS NEEDS TO BE CHANGED
-        value.put(KEY_START, event.getDateTimeInMillis());
-        value.put(KEY_END, event.getDateTimeInMillis());
+        value.put(KEY_DATE, event.getstrDate());
+        Log.d(Globals.TAGG, "Showing what date in millis is " + event.getDate());
+        value.put(KEY_START, event.getstrStart());
+        value.put(KEY_END, event.getstrEnd());
+        /*SimpleDateFormat format = new SimpleDateFormat("MMM dd yyyy");
+        String datetext = format.format(event.getDate());
+        value.put(KEY_DATE, datetext);*/
+
+        /*value.put(KEY_DATE, event.getDateInMillis());
+        Log.d(Globals.TAGG, "DBHelper Showing what date is " + event.getDate());
+        Log.d(Globals.TAGG, "DBHelper Showing what date is in millis" + event.getDateInMillis());
+        Log.d(Globals.TAGG, "DBHelper Showing what day is getting inserted" + event.getDate().get(Calendar.DAY_OF_MONTH));
+        value.put(KEY_START, event.getStartInMillis());
+        value.put(KEY_END, event.getEndInMillis());*/
 
         value.put(KEY_LOCATION, event.getLocation());
         value.put(KEY_DESCRIPTION, event.getDescription());
@@ -137,6 +199,39 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
         return id;
     }
 
+
+    // Insert a item given each column value
+    public long insertEntry2(CampusEvent event) {
+
+        ContentValues value = new ContentValues();
+
+        value.put(KEY_TITLE, event.getTitle());
+
+        value.put(KEY_DATE, event.getstrDate());
+        Log.d(Globals.TAGG, "Showing what date in millis is " + event.getDate());
+        value.put(KEY_START, event.getstrStart());
+        value.put(KEY_END, event.getstrEnd());
+        /*value.put(KEY_DATE, event.getDateInMillis());
+        value.put(KEY_START, event.getStartInMillis());
+        value.put(KEY_END, event.getEndInMillis());*/
+
+        value.put(KEY_LOCATION, event.getLocation());
+        value.put(KEY_DESCRIPTION, event.getDescription());
+        value.put(KEY_URL, event.getURL());
+        value.put(KEY_LATITUDE, event.getLatitude());
+        value.put(KEY_LONGITUDE, event.getLongitude());
+        value.put(KEY_FOOD, event.getFood());
+        value.put(KEY_EVENT_TYPE, event.getEventType());
+        value.put(KEY_PROGRAM_TYPE, event.getProgramType());
+        value.put(KEY_YEAR, event.getYear());
+        value.put(KEY_MAJOR, event.getMajor());
+        value.put(KEY_GENDER, event.getGender());
+        value.put(KEY_GREEK_SOCIETY, event.getGreekSociety());
+        dbObj = getWritableDatabase();
+        long id = dbObj.insert(TABLE_DEVENTS, null, value);
+        dbObj.close();
+        return id;
+    }
     // Remove a entry by giving its index
     public void removeEvent(long rowIndex) {
         SQLiteDatabase dbObj = getWritableDatabase();
@@ -151,6 +246,23 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
         CampusEvent event = null;
 
         Cursor cursor = dbObj.query(true, TABLE_EVENT_ENTRIES, mColumnList,
+                KEY_ROWID + "=" + rowId, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            event = cursorToEvent(cursor);
+        }
+
+        cursor.close();
+        dbObj.close();
+
+        return event;
+    }
+
+    public CampusEvent fetchEventByIndex2(long rowId) throws SQLException {
+        SQLiteDatabase dbObj = getReadableDatabase();
+        CampusEvent event = null;
+
+        Cursor cursor = dbObj.query(true, TABLE_DEVENTS, mColumnList,
                 KEY_ROWID + "=" + rowId, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
@@ -182,13 +294,38 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
         return entryList;
     }
 
+    // Query the entire table, return all rows
+    public ArrayList<CampusEvent> fetchEvents2() {
+        SQLiteDatabase dbObj = getReadableDatabase();
+        ArrayList<CampusEvent> entryList = new ArrayList<CampusEvent>();
+
+        Cursor cursor = dbObj.query(TABLE_DEVENTS, mColumnList, null,
+                null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            CampusEvent event = cursorToEvent(cursor);
+            entryList.add(event);
+        }
+
+        cursor.close();
+        dbObj.close();
+
+        return entryList;
+    }
+
     private CampusEvent cursorToEvent(Cursor cursor) {
         CampusEvent event = new CampusEvent();
         event.setmId(cursor.getLong(cursor.getColumnIndex(KEY_ROWID)));
-        event.setDateTime(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
+
         event.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
-        event.setStart(cursor.getString(cursor.getColumnIndex(KEY_START)));
-        event.setEnd(cursor.getString(cursor.getColumnIndex(KEY_END)));
+
+        event.setstrStart(cursor.getString(cursor.getColumnIndex(KEY_START)));
+        event.setstrDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
+        event.setstrEnd(cursor.getString(cursor.getColumnIndex(KEY_END)));
+
+        /*event.setStart(cursor.getString(cursor.getColumnIndex(KEY_START)));
+        event.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
+        event.setEnd(cursor.getString(cursor.getColumnIndex(KEY_END)));*/
         event.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
         event.setDescription(cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)));
         event.setURL(cursor.getString(cursor.getColumnIndex(KEY_URL)));
@@ -205,6 +342,11 @@ public class CampusEventDbHelper extends SQLiteOpenHelper {
     }
 
 
+
+    /*
+    *Below is the filtering algorithm for showing relevant events
+    * Written by KF
+     */
     public ArrayList<CampusEvent> eventListFilter (ArrayList<CampusEvent> campusEvents, Filters filter) {
         ArrayList<CampusEvent> newList = new ArrayList<CampusEvent>();
         //if all the filters are zero, return original list

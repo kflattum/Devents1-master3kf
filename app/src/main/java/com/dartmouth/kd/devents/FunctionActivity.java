@@ -17,8 +17,9 @@ public class FunctionActivity extends AppCompatActivity {
     TabLayout tabLayout;
     MapFragment fragmentMap;
     CalendarActivity fragmentCal;
+    MyDevents fragmentDevents;
     CreateFragment fragmentCreate;
-    SettingsFragment fragmentSettings;
+    //SettingsFragment fragmentSettings;
 
     //create a fragment class
     MyFragmentPageAdapter myFragmentPagerAdapter;
@@ -39,10 +40,10 @@ public class FunctionActivity extends AppCompatActivity {
         fragmentMap = new MapFragment();
         fragmentCal = new CalendarActivity();
         fragmentCreate = new CreateFragment();
-        fragmentSettings = new SettingsFragment();
+        fragmentDevents = new MyDevents();
 
         fragments = new ArrayList<>();
-        fragments.add(fragmentSettings);
+        fragments.add(fragmentDevents);
         fragments.add(fragmentCreate);
         fragments.add(fragmentCal);
         fragments.add(fragmentMap);

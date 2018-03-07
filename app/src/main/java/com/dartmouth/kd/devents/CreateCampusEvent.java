@@ -9,7 +9,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.util.Calendar;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -21,7 +24,7 @@ import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 
 
-public class CreateCampusEvent extends FragmentActivity {
+public class CreateCampusEvent extends FragmentActivity{
 
     private CampusEventDbHelper mEventDbHelper;
     CampusEvent newEvent;
@@ -166,7 +169,7 @@ public class CreateCampusEvent extends FragmentActivity {
 
     // "Save" button is clicked
     public void onSaveClicked(View v) {
-        new InsertIntoDbTask().execute(newEvent);
+        new iInsertIntoDbTask().execute(newEvent);
         finish();
     }
 
@@ -211,11 +214,20 @@ public class CreateCampusEvent extends FragmentActivity {
         newEvent.setURL(URL);
     }
 
-    public void onDateSet(int year, int monthOfYear, int dayOfMonth){
+    /*public void onDateSet(int year, int monthOfYear, int dayOfMonth){
+        Log.d(Globals.TAGG, "Showing what day is " + dayOfMonth);
         newEvent.setDate(year, monthOfYear, dayOfMonth);
+        Log.d(Globals.TAGG, "Showing what date in millis is " + newEvent.getDate());
+    }*/
+
+    public void onDateSet(int year, int month, int day){
+        Log.d(Globals.TAGG, "CCE Showing what day is " + day);
+        newEvent.setDate(year, month, day);
+        Log.d(Globals.TAGG, "CCE Showing what date in millis is " + newEvent.getDateInMillis());
     }
 
     public void onStartSet(int hourOfDay, int minute) {
+        Log.d(Globals.TAGG, "CCE Showing what the minute is " + minute);
         newEvent.setStart(hourOfDay, minute);
     }
 
@@ -223,6 +235,16 @@ public class CreateCampusEvent extends FragmentActivity {
         newEvent.setEnd(hourOfDay, minute);
     }
 
+    /*@Override
+    public void onTimeSet(TimePicker view, int hour, int minute) {
+        newEvent.setStart(Calendar.HOUR_OF_DAY, hour);
+        newEvent.setStart(Calendar.MINUTE, minute);
+    }
+
+    public void onEndSet(TimePicker view, int hour, int minute) {
+        newEvent.setEnd(Calendar.HOUR_OF_DAY, hour);
+        newEvent.setEnd(Calendar.MINUTE, minute);
+    }*/
 
     public void onEventTypeSet(int EventType) {
         newEvent.setEventType(EventType);
@@ -252,7 +274,7 @@ public class CreateCampusEvent extends FragmentActivity {
         newEvent.setFood(Food);
     }
 
-    public class InsertIntoDbTask extends AsyncTask<CampusEvent, Void, String> {
+    public class iInsertIntoDbTask extends AsyncTask<CampusEvent, Void, String> {
         @Override
         protected String doInBackground(CampusEvent... campusEvent) {
             long id = mEventDbHelper.insertEntry(campusEvent[0]);

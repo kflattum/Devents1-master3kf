@@ -1,6 +1,16 @@
 package com.dartmouth.kd.devents;
 
+import android.util.Log;
+
+import com.google.firebase.database.Exclude;
+
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.Calendar;
+import java.util.Locale;
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * Created by kathrynflattum on 2/25/18.
@@ -12,9 +22,13 @@ public class CampusEvent {
     private String Title;
     private String Location;
     private String Description;
-    private String Date;
-    private String Start;
-    private String End;
+   private Calendar Date;
+    private Calendar Start;
+    private Calendar End;
+   private String strDate;
+    private String strStart;
+    private String strEnd;
+
     private String URL;
     private Double Latitude;
     private Double Longitude;
@@ -30,12 +44,17 @@ public class CampusEvent {
         this.Title = "";
         this.Location = "";
         this.Description = "";
-        this.Date = "";
-        this.Start = "";
-        this.End = "";
+
+        this.strDate ="";
+        this.strStart= "";
+        this.strEnd= "";
+        this.Date = Calendar.getInstance();
+        this.Start = Calendar.getInstance();
+        this.End = Calendar.getInstance();
         this.URL = "";
-        this.Latitude = null;
-        this.Longitude = null;
+        double dub = 0;
+        this.Latitude = dub;
+        this.Longitude = dub;
         this.Food = 0;
         this.EventType = 0;
         this.ProgramType = 0;
@@ -46,6 +65,37 @@ public class CampusEvent {
 
 
     }
+
+    public String getstrDate() {
+        return strDate;
+    }
+
+    public void setstrDate(String Date) {
+        this.strDate = Date;
+    }
+
+    public void setstrDate(int day, int month, int year) {
+        //String date = String.valueOf(day) + String.valueOf(month) + String.valueOf(year);
+        //this.Date = date;
+        Log.d("Date.....", String.valueOf(day) + "..." + String.valueOf(month) + "..." + String.valueOf(year));
+    }
+
+    public String getstrStart() {
+        return strStart;
+    }
+
+    public void setstrStart(String start) {
+        strStart = start;
+    }
+
+    public String getstrEnd() {
+        return strEnd;
+    }
+
+    public void setstrEnd(String end) {
+        strEnd = end;
+    }
+
 
     public Long getmId() {
         return mId;
@@ -95,56 +145,93 @@ public class CampusEvent {
         this.Description = Description;
     }
 
-    //@Exclude
-    public String getDate() {
+    @Exclude
+    public Calendar getDate() {
         return Date;
     }
 
-    public void setDate(int year, int monthOfYear, int dayOfMonth) {
-        Calendar date = Calendar.getInstance();
-        date.set(year, monthOfYear, dayOfMonth);
-        Date = date.toString();
+    public void setDate(String date) {
+        SimpleDateFormat mparser = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
+        try {
+            this.Start.setTime(mparser.parse(date));
+        }catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setDate(int year, int month, int day) {
+            this.Date.set(year, month, day);
+        Log.d(Globals.TAGG, "CE Showing what date is setDate(int,int)" + Date.toString());
+        Log.d(Globals.TAGG, "CE Showing what date is setDate(int,int)" + this.Date.toString());
+        Log.d(Globals.TAGG, "CE Showing what day is " + this.Date.get(Calendar.DAY_OF_MONTH));
+
     }
 
 
-    public long getDateTimeInMillis() {
-        long mDate = 0;
-        return mDate;
+    public long getDateInMillis() {
+        return Date.getTimeInMillis();
+    }
+
+    public long getStartInMillis() {
+        return Start.getTimeInMillis();
+    }
+
+    public long getEndInMillis(){
+        return End.getTimeInMillis();
     }
 
 
-    public void setStart(int hourOfDay, int minute) {
-        Calendar date = Calendar.getInstance();
-        date.set(0,0,0,hourOfDay,minute);
-        Start = date.toString();
+    public void setStart(String start) {
+        SimpleDateFormat mparser = new SimpleDateFormat("HH:mm");
+
+        try {
+            this.Start.setTime(mparser.parse(start));
+        }catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setStart(String start){
-        this.Start = start;
+    public void setStart(int hour, int minute) {
+        this.Start.set(Calendar.HOUR_OF_DAY, hour);
+        this.Start.set(Calendar.MINUTE, minute);
+        Log.d(Globals.TAGG, "CE Showing what time start is setStart(int,int)" + this.Start.toString());
+        Log.d(Globals.TAGG, "CE Showing what hour is " + this.Start.get(Calendar.HOUR));
+
     }
 
-    public void setDateTime(String date){
-        this.Date = date;
-    }
+    //public void setDateTime(String date){
+    //    this.Date = date;
+    //}
 
-    public String getmStart() {
+    @Exclude
+    public Calendar getStart() {
         return Start;
     }
 
 
-    public void setEnd(int hourOfDay, int minute) {
-        Calendar date = Calendar.getInstance();
-        date.set(0,0,0,hourOfDay,minute);
-        End = date.toString();
+    public void setEnd(String end) {
+       SimpleDateFormat mparser = new SimpleDateFormat("HH:mm");
+        try {
+            this.End.setTime(mparser.parse(end));
+            Log.d(Globals.TAGG, "CE Showing what time end is setEnd(String) " + this.End.toString());
+            Log.d(Globals.TAGG, "CE Showing what time end is in millis " + this.End.getTimeInMillis());
+        }catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setEnd(String end){
-        this.End = end;
+    public void setEnd(int hour, int minute) {
+        this.End.set(Calendar.HOUR_OF_DAY, hour);
+        this.End.set(Calendar.MINUTE, minute);
+
     }
 
-    public String getmEnd() {
+    @Exclude
+    public Calendar getEnd() {
         return End;
     }
+
 
     public String getURL() {
         return URL;

@@ -1,7 +1,9 @@
 package com.dartmouth.kd.devents;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +13,7 @@ import android.widget.Toast;
 
 // Display a campus event
 public class DisplayEventActivity extends Activity {
-
+    private CampusEventDbHelper mEventDbHelper;
     private static final int MENU_ID_DELETE = 0;
     @SuppressWarnings("unused")
     private static final int MENU_ID_UPDATE = 1;
@@ -30,6 +32,9 @@ public class DisplayEventActivity extends Activity {
         if ( extras != null){
             mEventId = extras.getLong(Globals.KEY_ROWID);
             ((EditText) findViewById(R.id.editDispTitle)).setText(extras.getString(Globals.KEY_TITLE));
+            long date = extras.getLong(Globals.KEY_DATE);
+            Log.d(Globals.TAGG, "DEA Showing what date in millis is " + date);
+            ((EditText) findViewById(R.id.editDispDate)).setText(extras.getString(Globals.KEY_DATE));
             ((EditText) findViewById(R.id.editDispDate)).setText(extras.getString(Globals.KEY_DATE));
             ((EditText) findViewById(R.id.editDispStart)).setText(extras.getString(Globals.KEY_START));
             ((EditText) findViewById(R.id.editDispEnd)).setText(extras.getString(Globals.KEY_END));
@@ -52,12 +57,17 @@ public class DisplayEventActivity extends Activity {
             int gender = extras.getInt(Globals.KEY_GENDER);
             ((EditText) findViewById(R.id.editDispGender)).setText(getGenderString(gender));
         }
+        mEventDbHelper = new CampusEventDbHelper(this);
     }
 
     // "Save to MyDEvents" button is clicked
     public void onSavetoMyDEvents(View v) {
-        //new InsertIntoDbTask().execute(newEvent);
-        //Log.d(Globals.TAGG, "Saving to my devents ");
+        long id = mEventId;
+
+        CampusEventDbHelper db = new CampusEventDbHelper(this);
+        CampusEvent event = db.fetchEventByIndex(id);
+
+        new kInsertIntoDbTask().execute(event);
         Toast.makeText(this, "Saved to My DEvents", Toast.LENGTH_SHORT).show();
         finish();
     }
@@ -98,6 +108,31 @@ public class DisplayEventActivity extends Activity {
                 finish();
                 return false;
         }
+    }
+
+
+    public class kInsertIntoDbTask extends AsyncTask<CampusEvent, Void, String> {
+        @Override
+        protected String doInBackground(CampusEvent... campusEvent) {
+            long id = mEventDbHelper.insertEntry2(campusEvent[0]);
+            fbHelper(id);
+            return ""+id;
+            // Pop up a toast
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), "Event #" + result + " saved.", Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+    }
+
+    public void fbHelper(long id){
+        EventUploader eu = new EventUploader(this);
+        eu.syncBackend(id);
+
     }
 
     String getFoodString(int id){

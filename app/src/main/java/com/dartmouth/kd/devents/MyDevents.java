@@ -19,61 +19,54 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
+/**
+ * MyDevents functions very similar to the  CalendarActivity but only shows the list of events
+ * that the user has saved
+ * Written by KF
+ */
+public class MyDevents extends ListFragment implements LoaderManager.LoaderCallbacks<ArrayList<CampusEvent>>  {
 
-public class CalendarActivity extends ListFragment implements LoaderManager.LoaderCallbacks<ArrayList<CampusEvent>>  {
+private Intent myIntent;
+private static CampusEventDbHelper mCampusEventDbHelper;
+public static ArrayList<CampusEvent>  eventsList = new ArrayList<CampusEvent>();
+public static Context mContext; // context pointed to parent activity
+public static ActivityEntriesAdapter mAdapter; // customized adapter for displaying
+// a campus event
+public static LoaderManager loaderManager;
+public static int onCreateCheck=0;
+// retrieve records from the database and display them in the list view
 
-    private Intent myIntent;
-    private static CampusEventDbHelper mCampusEventDbHelper;
-    public static ArrayList<CampusEvent>  eventsList = new ArrayList<CampusEvent>();
-    public static Context mContext; // context pointed to parent activity
-    public static ActivityEntriesAdapter mAdapter; // customized adapter for displaying
-    // exercise entry
-    public static LoaderManager loaderManager;
-    public static int onCreateCheck=0;
-    Filters currFilters;
-    FilterWindow window;
-    // retrieve records from the database and display them in the list view
-
-    public void updateHistoryEntries(Context context) {
+public void updateDEventsEntries(Context context) {
         if (this.mCampusEventDbHelper == null) {
-            setUpDB(context);
+        setUpDB(context);
         }
         if(onCreateCheck==1){
-            onCreateCheck=0;
+        onCreateCheck=0;
         } else {
-            loaderManager.initLoader(1, null, this).forceLoad();
-            Log.d("TAG", "Called");
+        loaderManager.initLoader(1, null, this).forceLoad();
+        Log.d("TAG", "Called");
         }
-    }
+        }
 
 
 
-    private void setUpDB(Context context) {
+private void setUpDB(Context context) {
         this.mContext = context;
-        CampusEventDbHelper exerciseEntryDbHelper = new CampusEventDbHelper(context);
-        this.mCampusEventDbHelper = exerciseEntryDbHelper;
+        CampusEventDbHelper dbHelper = new CampusEventDbHelper(context);
+        this.mCampusEventDbHelper = dbHelper;
         ActivityEntriesAdapter activityEntriesAdapter = new ActivityEntriesAdapter(this,context);
         this.mAdapter = activityEntriesAdapter;
         loaderManager = getActivity().getLoaderManager();
 
         setListAdapter(this.mAdapter);
-    }
+        }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+@Override
+public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mContext = getActivity();
-
-        currFilters = new Filters();
-        window = new FilterWindow();
-        currFilters = window.getCurrentFilters();
-
-        //EventUploader eu = new EventUploader(mContext);
-        //eu.syncBackend();
-
         // Open data base for operations.
         mCampusEventDbHelper = new CampusEventDbHelper(mContext);
         loaderManager = getActivity().getLoaderManager();
@@ -86,55 +79,55 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
         onCreateCheck=1;
 
 
-    }
+        }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.activity_calendar, container, false);
-    }
+        return inflater.inflate(R.layout.fragment_mydevents, container, false);
+        }
 
 
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-            MenuItem item = menu.add(Menu.NONE, 0,0, "FILTER");
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-    }
+        MenuItem item = menu.add(Menu.NONE, 0,0, "FILTER");
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == 0) {
-            myIntent = new Intent(getActivity(),  FilterWindow.class);
-            startActivityForResult(myIntent, 0);
-            Toast.makeText(mContext, "Filtering", Toast.LENGTH_SHORT).show();
-            return true;
+        myIntent = new Intent(getActivity(),  FilterWindow.class);
+        startActivityForResult(myIntent, 0);
+        Toast.makeText(mContext, "Filtering", Toast.LENGTH_SHORT).show();
+        return true;
         }
 
         return false;
 
-    }
+        }
 
 
 
-    @Override
-    public void onResume() {
+@Override
+public void onResume() {
         super.onResume();
         // Re-query in case the data base has changed.
-        updateHistoryEntries(mContext);
+        updateDEventsEntries(mContext);
 
-    }
+        }
 
-    @Override
-    public void onPause() {
+@Override
+public void onPause() {
         super.onPause();
-    }
+        }
 
-    @Override
-    public void onDestroy() {
+@Override
+public void onDestroy() {
         super.onDestroy();
-    }
+        }
 
 
     @Override
@@ -147,24 +140,9 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<ArrayList<CampusEvent>> loader, ArrayList<CampusEvent> campusEvents) {
-        CampusEventDbHelper dbh = new CampusEventDbHelper(mContext);
-
-        FilterDbHelper fdbh = new FilterDbHelper(mContext);
-
-        currFilters = fdbh.getLastUsedFilter();
-        Log.d(Globals.TAGG, "Are current filters null?" + currFilters);
-        if (currFilters == null) {
-            eventsList = campusEvents;
-        }else {
-            //currFilters = window.getCurrentFilters();
-
-            ArrayList<CampusEvent> newList = dbh.eventListFilter(campusEvents, currFilters);
-            Log.d(Globals.TAGG, "Showing what is in new list" + newList);
-            eventsList = newList;
-        }
         mAdapter.clear();
         Log.d("TAGG", "Load Finished");
-
+        eventsList = mCampusEventDbHelper.fetchEvents2();
         mAdapter.addAll(eventsList);
         mAdapter.notifyDataSetChanged();
     }
@@ -172,7 +150,9 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
     @Override
     public void onLoaderReset(Loader<ArrayList<CampusEvent>> loader) {
         mAdapter.clear();
+        eventsList = mCampusEventDbHelper.fetchEvents2();
         mAdapter.addAll(eventsList);
+        //mAdapter.addAll(eventsList);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -180,13 +160,13 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
     // Subclass of ArrayAdapter to display interpreted database row values in
     // customized list view.
     private class ActivityEntriesAdapter extends ArrayAdapter<CampusEvent> {
-        final /* synthetic */ CalendarActivity this_0;
+        final /* synthetic */ MyDevents this_0;
 
-        public ActivityEntriesAdapter(CalendarActivity calendarActivity, Context context) {
+        public ActivityEntriesAdapter(MyDevents dEvents, Context context) {
             // set layout to show two lines for each item
 
             super(context, android.R.layout.two_line_list_item);
-            this.this_0 = calendarActivity;
+            this.this_0 = dEvents;
 
         }
 
@@ -216,18 +196,16 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
             //parse data to readable format
             String title = event.getTitle();
 
-            Calendar date = event.getDate();
-            /*String dateString = Utils.parseDate(event.getDateInMillis(),
+           /*String dateString = Utils.parseDate(event.getDateInMillis(),
                     mContext);
             String startString = Utils.parseStart(event.getStartInMillis(),
                     mContext);
             String endString = Utils.parseEnd(event.getEndInMillis(),
                     mContext);*/
-
             String dateString = event.getstrDate();
-            String startString = event.getstrStart();
-            String endString = event.getstrEnd();
 
+            String startString = event.getstrStart();
+            String endString =event.getstrEnd();
             // Set text on the view.
             titleView.setText(dateString + ": " + title);
             summaryView.setText(startString + "- " + endString);
@@ -251,14 +229,12 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
         // Write row id into extras.
         extras.putLong(Globals.KEY_ROWID, event.getmId());
         extras.putString(Globals.KEY_TITLE,event.getTitle());
-
         extras.putString(Globals.KEY_DATE,
                 event.getstrDate());
         extras.putString(Globals.KEY_START,
                 event.getstrStart());
         extras.putString(Globals.KEY_END,
                 event.getstrEnd());
-
         /*extras.putString(Globals.KEY_DATE,
                 Utils.parseDate(event.getDateInMillis(), mContext));
         extras.putString(Globals.KEY_START,
@@ -279,8 +255,6 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
         extras.putInt(Globals.KEY_GREEK_SOCIETY,event.getGreekSociety());
         extras.putInt(Globals.KEY_GENDER,event.getGender());
 
-
-
         // Manual mode requires DisplayEntryActivity
         intent.setClass(mContext, DisplayEventActivity.class);
 
@@ -288,5 +262,4 @@ public class CalendarActivity extends ListFragment implements LoaderManager.Load
         intent.putExtras(extras);
         startActivity(intent);
     }
-
 }

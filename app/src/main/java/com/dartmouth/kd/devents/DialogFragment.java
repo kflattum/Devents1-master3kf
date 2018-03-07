@@ -121,6 +121,7 @@ public class DialogFragment extends android.app.DialogFragment {
                                                   int monthOfYear, int dayOfMonth) {
                                 ((CreateCampusEvent) parent).onDateSet(
                                         year, monthOfYear, dayOfMonth);
+                                Log.d(Globals.TAGG, "DF Showing what date is sent to onDate set " + dayOfMonth);
                             }
                         }, year, month, day);
 
@@ -132,9 +133,9 @@ public class DialogFragment extends android.app.DialogFragment {
                 return new TimePickerDialog(parent,
                         new TimePickerDialog.OnTimeSetListener() {
                             public void onTimeSet(TimePicker view, int hourOfDay,
-                                                  int minute) {
+                                                  int min) {
                                 ((CreateCampusEvent) parent).onStartSet(
-                                        hourOfDay, minute);
+                                        hourOfDay, min);
                             }
                         }, hour, minute, false);
 
@@ -146,9 +147,9 @@ public class DialogFragment extends android.app.DialogFragment {
                 return new TimePickerDialog(parent,
                         new TimePickerDialog.OnTimeSetListener() {
                             public void onTimeSet(TimePicker view, int hourOfDay,
-                                                  int minute) {
+                                                  int min) {
                                 ((CreateCampusEvent) parent).onEndSet(
-                                        hourOfDay, minute);
+                                        hourOfDay, min);
                             }
                         }, hour, minute, false);
 
